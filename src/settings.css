@@ -1,0 +1,227 @@
+.settings-tab-body:has(> .opencode-wallpaper-settings) {
+  padding-top: 24px;
+}
+
+.opencode-wallpaper-settings {
+  display: grid;
+  gap: 20px;
+}
+
+/* The SDK accepts plain text only. The photo icon identifies wallpaper error
+   popups in either sprite. Hide its column so the list has no extra indentation. */
+.toast-v2--error:has(> [data-icon] use[href$="-outline-photo"]) {
+  grid-template-columns: minmax(0, 1fr) 20px;
+  row-gap: 4px;
+
+  > [data-icon] {
+    display: none;
+  }
+
+  > [data-content] {
+    display: contents;
+  }
+
+  [data-title] {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  > [data-close-button] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  [data-description] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    white-space: pre-line;
+    max-height: min(280px, calc(100dvh - 180px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+.opencode-wallpaper-preview {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: 180px;
+  border-radius: 10px;
+  background-color: var(--v2-background-bg-base);
+  background-position: center;
+  background-clip: padding-box;
+  border: 1px solid var(--v2-border-border-base);
+}
+
+.opencode-wallpaper-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.opencode-wallpaper-settings [data-action="wallpaper-preset"] {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.opencode-wallpaper-settings [data-action="wallpaper-preset"] > [data-slot] {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.opencode-wallpaper-gallery-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opencode-wallpaper-gallery button {
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--v2-border-border-base);
+  color: var(--v2-text-text-base);
+  background: var(--v2-background-bg-layer-01);
+  text-align: start;
+  font: inherit;
+  cursor: pointer;
+}
+
+.opencode-wallpaper-gallery button[aria-pressed="true"] {
+  border-color: var(--v2-border-border-strong);
+  outline: 1px solid var(--v2-border-border-strong);
+}
+
+.opencode-wallpaper-tile {
+  position: relative;
+  min-width: 0;
+}
+
+.opencode-wallpaper-choice {
+  width: 100%;
+  height: 100%;
+}
+
+.opencode-wallpaper-gallery .opencode-wallpaper-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opencode-wallpaper-tile:hover .opencode-wallpaper-remove,
+.opencode-wallpaper-tile:focus-within .opencode-wallpaper-remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: none) {
+  .opencode-wallpaper-gallery .opencode-wallpaper-remove {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.opencode-wallpaper-gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.opencode-wallpaper-gallery .opencode-wallpaper-thumbnail,
+.opencode-wallpaper-gallery .opencode-wallpaper-add::before {
+  display: grid;
+  width: 100%;
+  padding: 0;
+  aspect-ratio: 16 / 10;
+  align-items: center;
+  overflow: hidden;
+}
+
+.opencode-wallpaper-gallery span,
+.opencode-wallpaper-gallery .opencode-wallpaper-add::after {
+  display: block;
+  padding: 5px 2px 1px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.opencode-wallpaper-folder {
+  overflow-wrap: anywhere;
+}
+
+.opencode-wallpaper-folder code {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-family: var(--v2-font-family-code);
+}
+
+.opencode-wallpaper-gallery .opencode-wallpaper-add {
+  position: relative;
+}
+
+/* Reserve the same thumbnail and caption space without showing an upload label. */
+.opencode-wallpaper-gallery .opencode-wallpaper-add::before {
+  content: "";
+}
+
+.opencode-wallpaper-gallery .opencode-wallpaper-add::after {
+  content: "\00a0";
+}
+
+.opencode-wallpaper-gallery .opencode-wallpaper-add-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 36px;
+  font-weight: 300;
+}
+
+.opencode-wallpaper-file-input {
+  display: none;
+}
+
+.opencode-wallpaper-gallery button:focus-visible {
+  outline: 2px solid var(--v2-border-border-focus);
+  outline-offset: 2px;
+}
+
+.opencode-wallpaper-gallery button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.opencode-wallpaper-range {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opencode-wallpaper-range output {
+  width: 5ch;
+  flex-shrink: 0;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .opencode-wallpaper-preview {
+    height: 140px;
+  }
+}

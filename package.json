@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "opencode-backdrop",
+  "version": "2.2.5",
+  "description": "Use your own local wallpapers in OpenCode Desktop",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viralcodex/opencode-backdrop.git"
+  },
+  "homepage": "https://github.com/viralcodex/opencode-backdrop#readme",
+  "bugs": {
+    "url": "https://github.com/viralcodex/opencode-backdrop/issues"
+  },
+  "packageManager": "bun@1.4.4",
+  "keywords": ["opencode", "plugin", "desktop", "wallpaper", "background"],
+  "exports": {
+    ".": "./index.ts",
+    "./server": "./index.ts",
+    "./gui-experimental": "./dist/gui-experimental.cjs"
+  },
+  "files": [
+    "index.ts",
+    "dist/gui-experimental.cjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun --bun vite build",
+    "check": "bun run test && bun run typecheck && bun run build && bun run check:package",
+    "check:package": "bun script/check-package.ts",
+    "prepack": "bun run check",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test src"
+  },
+  "peerDependencies": {
+    "@opencode/plugin": "~2.2.6 || ^0.0.0-dev",
+    "effect": "^4.1.0",
+    "solid-js": "^1.9.17"
+  },
+  "devDependencies": {
+    "@opencode/plugin": "2.2.6",
+    "@tsconfig/bun": "1.0.9",
+    "@types/bun": "1.4.3",
+    "@typescript/native": "npm:typescript@7.1.0-beta",
+    "effect": "4.1.0",
+    "solid-js": "1.9.17",
+    "vite": "7.3.7",
+    "vite-plugin-solid": "2.11.10"
+  }
+}
