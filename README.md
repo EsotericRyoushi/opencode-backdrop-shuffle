@@ -5,7 +5,7 @@ Use your own wallpapers in OpenCode Desktop. Supports OpenCode 2.2.6 and later 2
 ## Install
 
 ```sh
-opencode plugin add opencode-backdrop
+opencode plugin add 'github:viralcodex/opencode-backdrop#v0.1.0'
 ```
 
 This installs the plugin globally. Alternatively, add it to your global `opencode.json` or `opencode.jsonc`, keeping any existing plugins. Do not add it to `cli.json`.
@@ -13,7 +13,7 @@ This installs the plugin globally. Alternatively, add it to your global `opencod
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["opencode-backdrop"],
+  "plugins": ["github:viralcodex/opencode-backdrop#v0.1.0"],
 }
 ```
 
@@ -42,7 +42,7 @@ You can set an initial folder with an absolute path instead of choosing one in S
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "opencode-backdrop",
+      "package": "github:viralcodex/opencode-backdrop#v0.1.0",
       "options": { "folder": "/absolute/path/to/wallpapers" },
     },
   ],
