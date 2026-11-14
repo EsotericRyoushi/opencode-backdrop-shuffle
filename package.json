@@ -27,10 +27,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "bun --bun vite build",
-    "check": "bun run test && bun run typecheck && bun run build && bun run check:package",
+    "build:gui": "bun --bun vite build",
+    "check": "bun run test && bun run typecheck && bun run build:gui && bun run check:package",
     "check:package": "bun script/check-package.ts",
-    "prepack": "bun run check",
     "typecheck": "tsc --noEmit",
     "test": "bun test src"
   },
