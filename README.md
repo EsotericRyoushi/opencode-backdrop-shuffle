@@ -1,6 +1,7 @@
 # OpenCode Backdrop
 
-Use your own wallpapers in OpenCode Desktop. Supports OpenCode 2.2.6 and later 2.2.x versions through the GUI plugin API.
+<p>Use your own wallpapers in OpenCode Desktop. Supports OpenCode 2.2.6 and later 2.2.x versions through the GUI plugin API.</p>
+<img width="3020" height="1910" alt="image" src="https://github.com/user-attachments/assets/8d1626f2-7048-496c-8aa9-7745f19e1531" />
 
 ## Install
 
