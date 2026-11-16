@@ -9,8 +9,25 @@ test("starts with wallpaper off and no selection while retaining unknown selecti
   expect(Schema.decodeUnknownSync(Preferences)(saved)).toEqual(saved)
 })
 
-describe("wallpaper tint and brightness", () => {
-  test("preserves old strength settings as tint and defaults brightness without rewriting preferences", () => {
+test("maps every alignment to a CSS background position", () => {
+  const positions = {
+    "top-left": "left top",
+    "top": "center top",
+    "top-right": "right top",
+    "left": "left center",
+    "center": "center",
+    "right": "right center",
+    "bottom-left": "left bottom",
+    "bottom": "center bottom",
+    "bottom-right": "right bottom",
+  } as const
+  for (const [align, position] of Object.entries(positions)) {
+    const settings = Schema.decodeUnknownSync(Preferences)({ ...initial, align })
+    expect(wallpaperBackground(settings, "blob:wallpaper")["--wallpaper-background-position"]).toBe(position)
+  }
+})
+
+describe("wallpaper tint and brightness", () => {  test("preserves old strength settings as tint and defaults brightness without rewriting preferences", () => {
     for (const strength of [5, 20, 45]) {
       const settings = Schema.decodeUnknownSync(Preferences)({ ...initial, enabled: true, strength })
       expect(wallpaperAppearance(settings).tint).toBe(100 - strength)
@@ -26,7 +43,8 @@ describe("wallpaper tint and brightness", () => {
     expect(wallpaperAppearance(saved).tint).toBe(0)
     expect(wallpaperBackground(saved, "blob:wallpaper")).toEqual({
       "--wallpaper-image": 'url("blob:wallpaper")',
-      "--wallpaper-fit": "cover",
+      "--wallpaper-fit": "contain",
+      "--wallpaper-background-position": "right bottom",
       "--wallpaper-tint": "color-mix(in srgb, var(--v2-background-bg-base) 0%, transparent)",
       "--wallpaper-filter": "brightness(150%) contrast(85%) saturate(90%)",
     })

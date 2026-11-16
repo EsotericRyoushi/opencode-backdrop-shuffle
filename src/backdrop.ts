@@ -1,15 +1,35 @@
 import { wallpaperHeaders, wallpaperPanels } from "./style"
+import type { WallpaperAlignment } from "./preferences"
 
 type Rectangle = Pick<DOMRectReadOnly, "left" | "top" | "width" | "height">
 
+const alignmentFactors: Record<WallpaperAlignment, { x: number; y: number }> = {
+  "top-left": { x: 0, y: 0 },
+  "top": { x: 0.5, y: 0 },
+  "top-right": { x: 1, y: 0 },
+  "left": { x: 0, y: 0.5 },
+  "center": { x: 0.5, y: 0.5 },
+  "right": { x: 1, y: 0.5 },
+  "bottom-left": { x: 0, y: 1 },
+  "bottom": { x: 0.5, y: 1 },
+  "bottom-right": { x: 1, y: 1 },
+}
+
 // Paint only a header-sized background, using the panel's image scale and origin.
 // Oversized positioned layers would enlarge scroll overflow or clip header actions.
-export function wallpaperHeaderGeometry(panel: Rectangle, header: Rectangle, image: { width: number; height: number }, fit: "cover" | "contain") {
+export function wallpaperHeaderGeometry(
+  panel: Rectangle,
+  header: Rectangle,
+  image: { width: number; height: number },
+  fit: "cover" | "contain",
+  align: WallpaperAlignment = "center",
+) {
   const scale = Math[fit === "cover" ? "max" : "min"](panel.width / image.width, panel.height / image.height)
   const width = image.width * scale
   const height = image.height * scale
-  const x = (panel.width - width) / 2 - (header.left - panel.left)
-  const y = (panel.height - height) / 2 - (header.top - panel.top)
+  const factor = alignmentFactors[align] ?? alignmentFactors.center
+  const x = (panel.width - width) * factor.x - (header.left - panel.left)
+  const y = (panel.height - height) * factor.y - (header.top - panel.top)
   const px = (value: number) => `${Math.round(value * 1000) / 1000}px`
   return {
     "--wallpaper-background-size": `${px(width)} ${px(height)}`,
@@ -17,8 +37,9 @@ export function wallpaperHeaderGeometry(panel: Rectangle, header: Rectangle, ima
   }
 }
 
-export function alignWallpaperHeaders(options: { image: { width: number; height: number }; fit: "cover" | "contain" }) {
+export function alignWallpaperHeaders(options: { image: { width: number; height: number }; fit: "cover" | "contain"; align?: WallpaperAlignment }) {
   if (!(options.image.width > 0 && options.image.height > 0)) return () => {}
+  const alignment = options.align ?? "center"
   type Saved = { attribute: string | null; properties: Map<string, { value: string; priority: string }> }
   const saved = new Map<HTMLElement, Saved>()
   const observed = new Set<Element>()
@@ -61,7 +82,7 @@ export function alignWallpaperHeaders(options: { image: { width: number; height:
       live.add(element)
       elements.add(panel)
       elements.add(element)
-      measurements.push({ element, geometry: wallpaperHeaderGeometry(parent, header, options.image, options.fit) })
+      measurements.push({ element, geometry: wallpaperHeaderGeometry(parent, header, options.image, options.fit, alignment) })
     }
     for (const [element, state] of saved) {
       if (live.has(element)) continue

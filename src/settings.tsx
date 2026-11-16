@@ -3,7 +3,7 @@ import { usePlugin } from "@opencode/plugin/gui"
 import type definition from "./gui"
 import { canRemoveWallpaper, changeWallpaper, checkWallpaperDuplicate, removeWallpaper, selectedWallpaper, wallpaperTitle, type WallpaperChoice } from "./model"
 import { uploadImage } from "./image"
-import { appearanceControls, appearanceKeys, wallpaperAppearance } from "./preferences"
+import { alignmentValues, appearanceControls, appearanceKeys, wallpaperAppearance, type WallpaperAlignment } from "./preferences"
 import type { WallpaperImage } from "./render"
 import type { ThumbnailCache } from "./thumbnail-cache"
 import { wallpaperBackground } from "./style"
@@ -185,6 +185,18 @@ export function WallpaperSettings(props: {
                 event.currentTarget.value = ""
                 if (file) void upload(file)
               }}
+            />
+          </ctx.ui.SettingsRow>
+          <ctx.ui.SettingsRow
+            id="wallpaper-align"
+            title={ctx.t("align.title")}
+            description={ctx.t("align.description")}
+          >
+            <ctx.ui.Select<WallpaperAlignment>
+              label={ctx.t("align.title")}
+              value={settings.value.align}
+              options={alignmentValues.map((value) => ({ value, label: ctx.t(`align.${value}`) }))}
+              onChange={(value) => settings.update((draft) => { draft.align = value })}
             />
           </ctx.ui.SettingsRow>
           <For each={appearanceKeys}>

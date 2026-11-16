@@ -1,4 +1,16 @@
-import { wallpaperAppearance, type WallpaperPreferences } from "./preferences"
+import { wallpaperAppearance, type WallpaperAlignment, type WallpaperPreferences } from "./preferences"
+
+const wallpaperPositions: Record<WallpaperAlignment, string> = {
+  "top-left": "left top",
+  "top": "center top",
+  "top-right": "right top",
+  "left": "left center",
+  "center": "center",
+  "right": "right center",
+  "bottom-left": "left bottom",
+  "bottom": "center bottom",
+  "bottom-right": "right bottom",
+}
 
 export const wallpaperPanels = '[data-slot="home-panel"], [data-slot="session-chat-panel"] > .bg-v2-background-bg-base, [data-component="new-session"]'
 
@@ -147,6 +159,7 @@ export function wallpaperBackground(settings: WallpaperPreferences, image: strin
   return {
     "--wallpaper-image": visible ? `url(${JSON.stringify(image)})` : "none",
     "--wallpaper-fit": settings.fit,
+    "--wallpaper-background-position": wallpaperPositions[settings.align] ?? "center",
     "--wallpaper-tint": visible ? `color-mix(in srgb, var(--v2-background-bg-base) ${tint}%, transparent)` : "transparent",
     "--wallpaper-filter": visible ? `brightness(${brightness}%) contrast(85%) saturate(90%)` : "none",
   }

@@ -3,8 +3,8 @@ import { createEffect, createMemo, onCleanup } from "solid-js"
 import { Schema } from "effect"
 import { wallpaperCommand } from "./command"
 import { Catalog } from "./contract"
-import { selectedWallpaper, wallpaperCatalog, wallpaperTitle, type WallpaperChoice } from "./model"
-import { appearanceKeys, Preferences, initial } from "./preferences"
+import { changeWallpaper, selectedWallpaper, wallpaperCatalog, wallpaperTitle, type WallpaperChoice } from "./model"
+import { alignmentValues, appearanceKeys, Preferences, initial } from "./preferences"
 import { createWallpaperImage, type WallpaperReader } from "./render"
 import { imageError, thumbnailBlob } from "./image"
 import { createWallpaperErrorReporter } from "./errors"
@@ -44,7 +44,8 @@ export default Plugin.define({
         try {
           const configured = ctx.options.folder ?? ctx.options.folders
           if (ctx.signal.aborted) return false
-          catalog = createCatalog(wallpaperFolder(folder().value || configured), changed)
+          // The config option wins so a moved folder only needs one edit here.
+          catalog = createCatalog(wallpaperFolder(configured || folder().value), changed)
           changed()
           return await catalog.refresh()
         } catch (error) {
@@ -108,6 +109,57 @@ export default Plugin.define({
     }, { signal: ctx.signal })
     onCleanup(thumbnails.dispose)
     createEffect(() => thumbnails.retain(images()))
+
+    // The configured fit mode wins on load, including for saves made before the
+    // option existed. "contain" shows the whole image at the largest scale that
+    // fits the panel, without cropping, stretching, or mirroring it. CSS keeps
+    // that scale in sync with the window; the header copies follow on resize.
+    const configuredFit = ctx.options.fit
+    if (
+      (configuredFit === "cover" || configuredFit === "contain") &&
+      ctx.stores.preferences.value.fit !== configuredFit
+    ) {
+      ctx.stores.preferences.update((draft) => { draft.fit = configuredFit })
+    }
+
+    // Optional alignment override for the whole image. The stored preference is
+    // kept otherwise, so changing it in Settings survives a restart.
+    const configuredAlign = alignmentValues.find((value) => value === ctx.options.align)
+    if (configuredAlign && ctx.stores.preferences.value.align !== configuredAlign) {
+      ctx.stores.preferences.update((draft) => { draft.align = configuredAlign })
+    }
+
+    // Shuffle the wallpapers in the configured folder every `options.shuffle`
+    // seconds. Zero (or a missing option) keeps a single static wallpaper.
+    const shuffleSeconds = Number(ctx.options.shuffle ?? 60)
+    const shuffle = Number.isFinite(shuffleSeconds) && shuffleSeconds > 0
+    if (shuffle) {
+      // Pick the first wallpaper on first run, so the configured folder starts
+      // showing without needing a manual selection in Settings.
+      createEffect(() => {
+        const list = images()
+        const preset = ctx.stores.preferences.value.preset
+        // Pick the first image when nothing is selected yet, or when the saved
+        // selection points at a file that no longer exists (e.g. folder moved).
+        if (!list.length || list.some((choice) => choice.id === preset)) return
+        const first = list[0]
+        if (first) ctx.stores.preferences.update((draft) => { changeWallpaper(draft, first.id) })
+      })
+      createEffect(() => {
+        const timer = window.setInterval(() => {
+          const preferences = ctx.stores.preferences.value
+          if (!preferences.enabled) return
+          const list = images()
+          if (list.length < 2) return
+          // Avoid showing the same image twice in a row.
+          const choices = list.filter((choice) => choice.id !== preferences.preset)
+          const next = choices[Math.floor(Math.random() * choices.length)]
+          if (next) ctx.stores.preferences.update((draft) => { changeWallpaper(draft, next.id) })
+        }, shuffleSeconds * 1000)
+        onCleanup(() => window.clearInterval(timer))
+      })
+    }
+
     createEffect(() => {
       if (ctx.signal.aborted) return
       const state = catalog?.state()
@@ -125,7 +177,11 @@ export default Plugin.define({
     ctx.add(Style, () => wallpaperVariableStyle(ctx.stores.preferences.value, image.url))
     createEffect(() => {
       if (!image.url || !image.width || !image.height) return
-      onCleanup(alignWallpaperHeaders({ image: { width: image.width, height: image.height }, fit: ctx.stores.preferences.value.fit }))
+      onCleanup(alignWallpaperHeaders({
+        image: { width: image.width, height: image.height },
+        fit: ctx.stores.preferences.value.fit,
+        align: ctx.stores.preferences.value.align,
+      }))
     })
     ctx.add(SettingsPage, {
       id: "wallpaper",
@@ -134,10 +190,10 @@ export default Plugin.define({
         return ctx.t("title")
       },
       get entries() {
-        return ["enabled", ...(ctx.desktop ? ["folders"] : []), "preset", ...appearanceKeys].map((id) => ({
+        return ["enabled", ...(ctx.desktop ? ["folders"] : []), "preset", "align", ...appearanceKeys].map((id) => ({
           id: `wallpaper-${id}`,
           title: ctx.t(`${id}.title`),
-          keywords: "wallpaper background image upload fit folder tint brightness contrast",
+          keywords: "wallpaper background image upload fit align alignment corner edge position folder tint brightness contrast",
         }))
       },
       render: () => (

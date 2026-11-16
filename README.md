@@ -1,53 +1,116 @@
-# OpenCode Backdrop
+# OpenCode Backdrop Shuffle
 
-<p>Use your own wallpapers in OpenCode Desktop. Supports OpenCode 2.2.6 and later 2.2.x versions through the GUI plugin API.</p>
-<img width="3020" height="1910" alt="image" src="https://github.com/user-attachments/assets/8d1626f2-7048-496c-8aa9-7745f19e1531" />
+Local wallpaper support for OpenCode Desktop, with automatic shuffling, whole-image fit, and corner alignment.
+
+This is a fork of [viralcodex/opencode-backdrop](https://github.com/viralcodex/opencode-backdrop) that adds:
+
+- Automatic wallpaper shuffle from a folder, with no immediate repeats.
+- Whole-image fit by default: the largest possible scale without cropping, stretching, or mirroring.
+- Nine-way image alignment: corners, edges, and center, including bottom-right.
+- Config folder precedence, so moving a wallpaper folder only needs one config edit.
+
+Built and tested with **OpenCode Desktop 2.3.0**.
 
 ## Install
 
+Remove any existing `opencode-backdrop` or other wallpaper plugin entry first. Backdrop plugins share the plugin id `wallpaper`, so only one can be active.
+
+### With the CLI
+
 ```sh
-opencode plugin add 'github:viralcodex/opencode-backdrop#v0.1.0'
+opencode plugin add 'github:EsotericRyoushi/opencode-backdrop-shuffle#v0.2.0'
 ```
 
-This installs the plugin globally. Alternatively, add it to your global `opencode.json` or `opencode.jsonc`, keeping any existing plugins. Do not add it to `cli.json`.
+Restart OpenCode after installing.
+
+### With the config file
+
+Add the repository to your global `opencode.json` or `opencode.jsonc`:
 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["github:viralcodex/opencode-backdrop#v0.1.0"],
+  "plugins": ["github:EsotericRyoushi/opencode-backdrop-shuffle#v0.2.0"]
 }
 ```
 
-## Use
-
-1. Open **Settings > Wallpapers**.
-2. Choose **Change folder** to use a local folder, or **+** to upload an image.
-3. Select an image and adjust tint, brightness and fit.
-
-Wallpaper starts off with an empty gallery. Images and preferences stay local, and images are not sent to models. Files must be non-empty and no larger than 8 MiB.
-
-- Folder images support PNG, JPEG, WebP and SVG, including subfolders. Changes appear automatically.
-- Uploads support PNG, JPEG and WebP.
-- More tint improves text contrast. **Fill background** crops the image; **Show whole image** keeps it fully visible.
-- Use `/wallpaper` in chat to switch images or turn wallpaper off. Escape cancels the picker.
-- Turn **Show wallpaper** off to restore the app's backgrounds without losing your choices.
-
-To remove an upload, hover or focus its tile and click **X**. Remove folder images by moving or deleting their source files.
-
-## Optional folder configuration
-
-You can set an initial folder with an absolute path instead of choosing one in Settings:
+### Point it at a wallpaper folder
 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "github:viralcodex/opencode-backdrop#v0.1.0",
-      "options": { "folder": "/absolute/path/to/wallpapers" },
-    },
-  ],
+      "package": "github:EsotericRyoushi/opencode-backdrop-shuffle#v0.2.0",
+      "options": {
+        "folder": "C:/Users/you/Pictures/Wallpapers",
+        "shuffle": 60,
+        "fit": "contain",
+        "align": "bottom-right"
+      }
+    }
+  ]
 }
 ```
 
-The folder chosen in Settings takes precedence over this option.
+The folder must be an absolute path. On Windows, forward slashes work best. PNG, JPEG, WebP, and SVG files up to 8 MiB are supported, including subfolders.
+
+## Use
+
+1. Open **Settings > Wallpapers**.
+2. Choose **Change folder** to use a local folder, or **+** to upload an image.
+3. Select an image and adjust tint, brightness, fit, and alignment.
+
+Wallpaper preferences and images stay local. Images are never sent to models.
+
+- **Shuffle** picks a random folder image every 60 seconds by default. It never shows the same image twice in a row and recovers automatically if the saved image no longer exists.
+- **Fill background** (`cover`) fills the panel but crops the image.
+- **Show whole image** (`contain`) is the default. It shows the entire image at the largest scale that fits, keeping the aspect ratio and original orientation.
+- **Image alignment** places the whole image against an edge or corner. It only moves the image; it never crops, stretches, or mirrors it.
+- **Wallpaper tint** controls the theme-colored shade over the image. Lower it to show more artwork; raise it for easier reading.
+- **Wallpaper brightness** adjusts the image only, without changing text or controls.
+- Use `/wallpaper` in chat to switch images or turn wallpaper off. Escape cancels the picker.
+- Turn **Show wallpaper** off to restore the app's backgrounds without losing your choices.
+
+### Fit and alignment notes
+
+For portrait artwork on a wide window, whole-image fit is limited by the panel height. The empty space beside the image is unavoidable unless you crop the image or use a taller panel. Alignment moves the artwork within that space; for a height-limited portrait image, bottom-right mainly moves it to the right edge.
+
+Alignment values are:
+
+`top-left`, `top`, `top-right`, `left`, `center`, `right`, `bottom-left`, `bottom`, `bottom-right`.
+
+## Configuration options
+
+All options are optional. Set them in the plugin entry under `options`.
+
+| Option | Description |
+| --- | --- |
+| `folder` | Absolute path to a wallpaper folder. This fork gives it precedence over the folder saved in Settings. |
+| `shuffle` | Seconds between random wallpapers. Omit or use `0` to keep one image. Default: `60`. |
+| `fit` | `contain` (default) shows the whole image without cropping. `cover` fills the panel and crops. |
+| `align` | `top-left`, `top`, `top-right`, `left`, `center`, `right`, `bottom-left`, `bottom`, or `bottom-right`. Default: `bottom-right`. |
+
+`fit` and `align` from config are applied when the plugin loads. If you want changes made in **Settings** to persist across restarts, leave `align` out of the config. The `fit` example above uses `contain` deliberately so the no-crop behavior stays pinned.
+
+The folder chosen in Settings is used only when no `folder` option is configured.
+
+## Development
+
+```sh
+git clone https://github.com/EsotericRyoushi/opencode-backdrop-shuffle.git
+cd opencode-backdrop-shuffle
+npm install
+npm run build:gui
+npx tsc --noEmit
+```
+
+OpenCode loads the committed `dist/gui-experimental.cjs`, so rebuild it after changing the GUI source. The test suite uses Bun:
+
+```sh
+bun test src
+```
+
+## Credits
+
+Forked from [viralcodex/opencode-backdrop](https://github.com/viralcodex/opencode-backdrop). The original project and this fork are MIT licensed; see [LICENSE](LICENSE).

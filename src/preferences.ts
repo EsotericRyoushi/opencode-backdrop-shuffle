@@ -8,6 +8,20 @@ export const appearanceControls = {
 
 export const appearanceKeys = ["tint", "brightness"] as const
 
+export const alignmentValues = [
+  "top-left",
+  "top",
+  "top-right",
+  "left",
+  "center",
+  "right",
+  "bottom-left",
+  "bottom",
+  "bottom-right",
+] as const
+
+export type WallpaperAlignment = (typeof alignmentValues)[number]
+
 const UploadedImage = Schema.Struct({
   id: Schema.String.check(Schema.isPattern(/^upload:.+$/)),
   name: Schema.String.check(Schema.isMinLength(1)),
@@ -26,6 +40,7 @@ export const Preferences = Schema.Struct({
   tint: Schema.optional(Schema.Int.check(Schema.isBetween({ minimum: appearanceControls.tint.min, maximum: appearanceControls.tint.max }))),
   brightness: Schema.optional(Schema.Int.check(Schema.isBetween({ minimum: appearanceControls.brightness.min, maximum: appearanceControls.brightness.max }))),
   fit: Schema.Literals(["cover", "contain"]),
+  align: Schema.Literals(alignmentValues),
   // Keep old saves readable. Strength supplies the tint only until the user sets
   // it explicitly; hidden no longer controls which wallpapers are available.
   strength: Schema.Int.check(Schema.isBetween({ minimum: 5, maximum: 45 })),
@@ -39,7 +54,10 @@ export const initial: WallpaperPreferences = {
   preset: "",
   image: "",
   strength: 100 - appearanceControls.tint.initial,
-  fit: "cover",
+  // Whole image by default: the largest scale that neither crops nor stretches.
+  fit: "contain",
+  // Bottom-right by default for this folder's portrait artwork.
+  align: "bottom-right",
 }
 
 export function wallpaperAppearance(settings: Pick<WallpaperPreferences, "tint" | "brightness" | "strength">) {

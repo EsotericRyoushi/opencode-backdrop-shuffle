@@ -23,6 +23,39 @@ test("uses the same centered letterboxes as the panel in contain mode", () => {
   })
 })
 
+test("anchors header copies to the bottom-right corner in contain mode", () => {
+  expect(wallpaperHeaderGeometry(
+    { left: 20, top: 40, width: 1000, height: 600 },
+    { left: 120, top: 90, width: 744, height: 36 },
+    { width: 2000, height: 1000 }, "contain", "bottom-right",
+  )).toEqual({
+    "--wallpaper-background-size": "1000px 500px",
+    "--wallpaper-background-position": "-100px 50px",
+  })
+})
+
+test("anchors header copies to the top-left corner in contain mode", () => {
+  expect(wallpaperHeaderGeometry(
+    { left: 20, top: 40, width: 1000, height: 600 },
+    { left: 120, top: 90, width: 744, height: 36 },
+    { width: 2000, height: 1000 }, "contain", "top-left",
+  )).toEqual({
+    "--wallpaper-background-size": "1000px 500px",
+    "--wallpaper-background-position": "-100px -50px",
+  })
+})
+
+test("anchors cropped header copies to the bottom-right corner in cover mode", () => {
+  expect(wallpaperHeaderGeometry(
+    { left: 20, top: 40, width: 1000, height: 600 },
+    { left: 120, top: 90, width: 744, height: 36 },
+    { width: 2000, height: 1000 }, "cover", "bottom-right",
+  )).toEqual({
+    "--wallpaper-background-size": "1200px 600px",
+    "--wallpaper-background-position": "-300px -50px",
+  })
+})
+
 test("keeps fractional offsets and handles headers partly outside the panel", () => {
   const geometry = wallpaperHeaderGeometry(
     { left: 20.25, top: 40.25, width: 900.5, height: 600.5 },

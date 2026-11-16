@@ -48,7 +48,7 @@
   height: 180px;
   border-radius: 10px;
   background-color: var(--v2-background-bg-base);
-  background-position: center;
+  background-position: var(--wallpaper-background-position, center);
   background-clip: padding-box;
   border: 1px solid var(--v2-border-border-base);
 }

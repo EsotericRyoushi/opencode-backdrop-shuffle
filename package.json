@@ -1,20 +1,21 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "opencode-backdrop",
-  "version": "0.1.0",
-  "description": "Use your own local wallpapers in OpenCode Desktop",
+  "name": "opencode-backdrop-shuffle",
+  "version": "0.2.0",
+  "description": "Local wallpapers for OpenCode Desktop with folder shuffle, whole-image fit, and corner alignment",
   "type": "module",
   "license": "MIT",
+  "author": "Hunter Kern",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/viralcodex/opencode-backdrop.git"
+    "url": "git+https://github.com/EsotericRyoushi/opencode-backdrop-shuffle.git"
   },
-  "homepage": "https://github.com/viralcodex/opencode-backdrop#readme",
+  "homepage": "https://github.com/EsotericRyoushi/opencode-backdrop-shuffle#readme",
   "bugs": {
-    "url": "https://github.com/viralcodex/opencode-backdrop/issues"
+    "url": "https://github.com/EsotericRyoushi/opencode-backdrop-shuffle/issues"
   },
   "packageManager": "bun@1.4.4",
-  "keywords": ["opencode", "plugin", "desktop", "wallpaper", "background"],
+  "keywords": ["opencode", "plugin", "desktop", "wallpaper", "background", "shuffle", "alignment"],
   "exports": {
     ".": "./index.ts",
     "./server": "./index.ts",
@@ -27,19 +28,19 @@
     "LICENSE"
   ],
   "scripts": {
-    "build:gui": "bun --bun vite build",
+    "build:gui": "vite build",
     "check": "bun run test && bun run typecheck && bun run build:gui && bun run check:package",
     "check:package": "bun script/check-package.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test src"
   },
   "peerDependencies": {
-    "@opencode/plugin": "~2.2.6 || ^0.0.0-dev",
+    "@opencode/plugin": "^2.3.0",
     "effect": "^4.1.0",
     "solid-js": "^1.9.17"
   },
   "devDependencies": {
-    "@opencode/plugin": "2.2.6",
+    "@opencode/plugin": "2.3.0",
     "@tsconfig/bun": "1.0.9",
     "@types/bun": "1.4.3",
     "@typescript/native": "npm:typescript@7.1.0-beta",
